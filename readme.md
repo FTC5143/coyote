@@ -22,7 +22,8 @@ These are features already planned to be implemented
 - [ ] Markers, (commands that run when points are passed)
 - [ ] Easy linked and heavily customizable path building syntax
 - [ ] Adaptable settings for curve points and segments
-- [ ] Unit tests and continuous integration for the repo
+- [x] Continuous integration
+- [ ] Unit tests in the CI
 
 ## Possible Features
 
