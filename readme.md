@@ -1,12 +1,12 @@
-<p align=center>
+![Coyote](docs/img/promo.png)
   
-  ![Coyote](docs/img/promo.png)
+<h1 align=center>
+Pure Pursuit library for FTC
+</h1>
 
-  ## Pure Pursuit library for FTC
-
-  ### By The 5143 Xcentics
-
-</p>
+<h3 align=center>
+  By The 5143 Xcentrics
+</h3>
 
 ---
 
