@@ -22,7 +22,7 @@ public class Circle extends Point {
         return new Circle(this);
     }
     
-    public Circle contains(Point point) {
+    public boolean contains(Point point) {
         return distance(point) <= radius;
     }
 }
