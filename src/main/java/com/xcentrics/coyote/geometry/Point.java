@@ -33,4 +33,8 @@ public class Point {
     public double distance(Point other) {
         return Math.hypot(other.x - this.x, other.y - this.y);
     }
+    
+    public double angleTo(Point other) {
+        return Math.atan2(other.y - this.y, other.x - this.x);
+    }
 }
