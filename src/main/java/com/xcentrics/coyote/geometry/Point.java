@@ -1,5 +1,7 @@
 package com.xcentrics.coyote.geometry;
 
+import java.lang.Math;
+
 public class Point {
 
     public double x;
@@ -26,5 +28,13 @@ public class Point {
         this.x += x;
         this.y += y;
         return this;
+    }
+    
+    public double distance(Point other) {
+        return Math.hypot(other.x - this.x, other.y - this.y);
+    }
+    
+    public double angleTo(Point other) {
+        return Math.atan2(other.y - this.y, other.x - this.x);
     }
 }
