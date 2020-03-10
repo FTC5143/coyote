@@ -29,4 +29,11 @@ public class Pose extends Point {
     public Pose clone() {
         return new Pose(this);
     }
+
+    public Pose copy(Pose other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.a = other.a;
+        return this;
+    }
 }

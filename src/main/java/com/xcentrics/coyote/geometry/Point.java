@@ -24,6 +24,12 @@ public class Point {
         return new Point(this);
     }
 
+    public Point copy(Pose other) {
+        this.x = other.x;
+        this.y = other.y;
+        return this;
+    }
+
     public Point translate(double x, double y) {
         this.x += x;
         this.y += y;
