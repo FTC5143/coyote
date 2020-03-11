@@ -14,4 +14,12 @@ public class PathPoint extends Point {
         actions.add(action);
         return this;
     }
+
+    public void markPassed() {
+        passed = true;
+
+        for (Runnable action : actions) {
+            action.run();
+        }
+    }
 }

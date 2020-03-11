@@ -24,7 +24,7 @@ public class Point {
         return new Point(this);
     }
 
-    public Point copy(Pose other) {
+    public Point copy(Point other) {
         this.x = other.x;
         this.y = other.y;
         return this;

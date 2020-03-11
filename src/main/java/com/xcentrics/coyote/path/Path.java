@@ -1,9 +1,12 @@
 package com.xcentrics.coyote.path;
 
+import com.xcentrics.coyote.geometry.Circle;
 import com.xcentrics.coyote.geometry.Point;
 import com.xcentrics.coyote.geometry.Pose;
+import com.xcentrics.coyote.geometry.Segment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Path {
 
@@ -51,11 +54,26 @@ public class Path {
         robot_pose.copy(new_robot_pose);
     }
 
-    /*
+
     public Point getFollowPoint() {
 
+        Point follow_point = null;
+
+        Circle follow_circle = new Circle(robot_pose.to_point(), follow_radius);
+
+        for (int i = 0; i < points.size() - 1; i++) {
+            Segment seg = new Segment(points.get(i), points.get(i + 1));
+
+            List<Point> intersections = follow_circle.segmentIntersections(seg);
+
+            if (intersections.size() == 1) {
+                follow_point.copy(intersections.get(0));
+            }
+        }
+
+        return follow_point;
     }
-    */
+
 
     /*
     public Pose getFollowPose() {
@@ -68,4 +86,22 @@ public class Path {
 
     }
     */
+
+    public PathPoint getFirstUnpassedPoint() {
+        for (PathPoint point : points) {
+            if (!point.passed) {
+                return point;
+            }
+        }
+        return null;
+    }
+
+    public PathPoint getLastPassedPoint() {
+        for (int i = points.size() - 1; i >= 0; i--) {
+            if (points.get(i).passed) {
+                return points.get(i);
+            }
+        }
+        return null;
+    }
 }

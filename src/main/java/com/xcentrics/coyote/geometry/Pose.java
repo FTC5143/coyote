@@ -36,4 +36,8 @@ public class Pose extends Point {
         this.a = other.a;
         return this;
     }
+
+    public Point to_point() {
+        return new Point(this);
+    }
 }
