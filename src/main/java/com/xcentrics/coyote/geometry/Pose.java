@@ -2,12 +2,12 @@ package com.xcentrics.coyote.geometry;
 
 public class Pose extends Point {
 
-    double a;
+    public double angle;
 
-    public Pose(double x, double y, double a) {
+    public Pose(double x, double y, double angle) {
         this.x = x;
         this.y = y;
-        this.a = a;
+        this.angle = angle;
     }
 
     public Pose(double x, double y) {
@@ -19,7 +19,7 @@ public class Pose extends Point {
     }
 
     public Pose(Pose other) {
-        this(other.x, other.y, other.a);
+        this(other.x, other.y, other.angle);
     }
 
     public Pose(Point point) {
@@ -33,7 +33,7 @@ public class Pose extends Point {
     public Pose copy(Pose other) {
         this.x = other.x;
         this.y = other.y;
-        this.a = other.a;
+        this.angle = other.angle;
         return this;
     }
 

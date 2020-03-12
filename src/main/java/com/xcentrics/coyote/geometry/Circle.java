@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Circle extends Point {
 
-    double radius;
+    public double radius;
 
     public Circle(double x, double y, double radius) {
         this.x = x;

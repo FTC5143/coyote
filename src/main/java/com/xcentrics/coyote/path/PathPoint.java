@@ -16,10 +16,12 @@ public class PathPoint extends Point {
     }
 
     public void markPassed() {
-        passed = true;
-
-        for (Runnable action : actions) {
-            action.run();
+        if(!passed) {
+            for (Runnable action : actions) {
+                action.run();
+            }
         }
+
+        passed = true;
     }
 }
