@@ -32,46 +32,37 @@ public class Circle extends Point {
     public List<Point> segmentIntersections(Segment seg) {
         List<Point> intersections = new ArrayList<>();
 
-        double bax = seg.end.x - seg.start.x;
-        double bay = seg.end.y - seg.start.y;
-        double cax = this.x - seg.start.x;
-        double cay = this.y - seg.start.y;
+        Point p1 = new Point(seg.start.x - this.x, seg.start.y - this.y);
+        Point p2 = new Point(seg.end.x - this.x, seg.end.y - this.y);
 
-        double a = bax * bax + bay * bay;
-        double bby2 = bax * cax + bay * cay;
-        double c = cax * cax + cay * cay - this.radius * this.radius;
+        double dx = p2.x - p1.x;
+        double dy = p2.y - p1.y;
 
-        double pby2 = bby2 / a;
-        double q = c / a;
+        double d = Math.sqrt(dx * dx + dy * dy);
+        double D = p1.x * p2.y - p2.x * p1.y;
 
-        double disc = pby2 * pby2 - q;
+        double discriminant = this.radius * this.radius * d * d - D * D;
 
-        if (disc < 0) {
+        if (discriminant < 0) {
             return intersections;
         }
 
-        double tmp_sqrt = Math.sqrt(disc);
+        double x1 = (D * dy + (dy >= 0 ? 1 : -1) * dx * Math.sqrt(discriminant)) / (d * d);
+        double x2 = (D * dy - (dy >= 0 ? 1 : -1) * dx * Math.sqrt(discriminant)) / (d * d);
 
-        double ab_scaling_factor_1 = -pby2 + tmp_sqrt;
-        double ab_scaling_factor_2 = -pby2 - tmp_sqrt;
+        double y1 = (-D * dx + Math.abs(dy) * Math.sqrt(discriminant)) / (d * d);
+        double y2 = (-D * dx - Math.abs(dy) * Math.sqrt(discriminant)) / (d * d);
 
-        Point point_1 = new Point(
-                seg.start.x - bax * ab_scaling_factor_1,
-                seg.start.y - bay * ab_scaling_factor_1
-        );
+        boolean valid_intersection_1 = Math.min(p1.x, p2.x) < x1 && x1 < Math.max(p1.x, p2.x) || Math.min(p1.y, p2.y) < y1 && y1 < Math.max(p1.y, p2.y);
+        boolean valid_intersection_2 = Math.min(p1.x, p2.x) < x2 && x2 < Math.max(p1.x, p2.x) || Math.min(p1.y, p2.y) < y2 && y2 < Math.max(p1.y, p2.y);
 
-        intersections.add(point_1);
-
-        if (disc == 0) {
-            return intersections;
+        if (valid_intersection_1) {
+            intersections.add(new Point(x1 + this.x, y1 + this.y));
         }
 
-        Point point_2 = new Point(
-                seg.start.x - bax * ab_scaling_factor_2,
-                seg.start.y - bay * ab_scaling_factor_2
-        );
-
-        intersections.add(point_2);
+        if (valid_intersection_2) {
+            intersections.add(new Point(x2 + this.x, y2 + this.y));
+        }
 
         return intersections;
     }

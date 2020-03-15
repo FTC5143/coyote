@@ -6,9 +6,22 @@ import java.util.ArrayList;
 
 public class PathPoint extends Point {
 
-    boolean passed = false;
+    public boolean passed = false;
 
     ArrayList<Runnable> actions = new ArrayList<>();
+
+    public PathPoint(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public PathPoint() {
+        this(0, 0);
+    }
+
+    public PathPoint(Point other) {
+        this(other.x, other.y);
+    }
 
     public PathPoint addAction(Runnable action) {
         actions.add(action);

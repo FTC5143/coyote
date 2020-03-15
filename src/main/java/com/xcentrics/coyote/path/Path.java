@@ -31,6 +31,10 @@ public class Path {
         return this;
     }
 
+    public ArrayList<PathPoint> getPoints() {
+        return this.points;
+    }
+
     public Path reverse() {
         return followAngle(Math.PI / 2);
     }
@@ -72,9 +76,9 @@ public class Path {
                 }
             }
             // If our follow circle is completely on the next line, mark the start of that line as a passed point
-            else if (intersections.size() == 2) {
-                points.get(i).markPassed();
-            }
+            //else if (intersections.size() == 2) {
+            //    points.get(i).markPassed();
+            //}
         }
     }
 
@@ -110,19 +114,23 @@ public class Path {
             List<Point> intersections = follow_circle.segmentIntersections(seg);
 
             if (intersections.size() == 1) {
-                follow_point.copy(intersections.get(0));
+                follow_point = intersections.get(0).clone();
             }
             else if (intersections.size() == 2) {
                 if (intersections.get(0).distance(seg.end) < intersections.get(1).distance(seg.end)) {
-                    follow_point.copy(intersections.get(0));
+                    follow_point = intersections.get(0).clone();
                 } else {
-                    follow_point.copy(intersections.get(1));
+                    follow_point = intersections.get(1).clone();
                 }
             }
         }
 
+        if (follow_circle.contains(points.get(points.size() - 1))) {
+            follow_point = points.get(points.size() - 1).clone();
+        }
+
         if (follow_point == null) {
-            follow_point.copy(getRecoveryPoint(recovery_method));
+            follow_point = getRecoveryPoint(recovery_method).clone();
         }
 
         return follow_point;
