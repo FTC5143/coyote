@@ -78,7 +78,7 @@ class Visualizer {
                 )
                 .addPoint(new PathPoint(1200, 700))
                 .addPoint(new PathPoint(1600, 300))
-                .followRadius(190);
+                .followRadius(400);
 
 
 
@@ -87,10 +87,6 @@ class Visualizer {
         Robot robot = new Robot();
 
         ArrayList<Point> actual_path_points = new ArrayList<>();
-
-        try {
-            TimeUnit.MILLISECONDS.sleep(4000);
-        } catch (Exception e) {}
 
         while (running) {
             bufferStrategy = canvas.getBufferStrategy();
@@ -151,14 +147,14 @@ class Visualizer {
             bufferStrategy.show();
             graphics.dispose();
 
-            robot.acc.x = Math.cos(follow_pose.angle);
-            robot.acc.y = Math.sin(follow_pose.angle);
+            robot.acc.x = Math.cos(robot.pose.angleTo(follow_pose));
+            robot.acc.y = Math.sin(robot.pose.angleTo(follow_pose));
             robot.acc.angle = Math.max(Math.min((follow_pose.angle-robot.pose.angle), 0.01), -0.01);
 
             actual_path_points.add(robot.pose.to_point());
 
             try {
-                TimeUnit.MILLISECONDS.sleep(10);
+                TimeUnit.MILLISECONDS.sleep(8);
             } catch (Exception e) {}
         }
     }

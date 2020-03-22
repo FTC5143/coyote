@@ -102,9 +102,10 @@ public class Path {
         return null;
     }
 
-    public Point getFollowPoint() {
+    public Pose getFollowPose() {
 
-        Point follow_point = null;
+        // Start off with our follow point being the recovery point. This will be overwritten if we find actual valid intersections
+        Point follow_point = getRecoveryPoint(recovery_method).clone();
 
         Circle follow_circle = getFollowCircle();
 
@@ -125,25 +126,16 @@ public class Path {
             }
         }
 
+        double follow_angle = robot_pose.angleTo(follow_point);
+
         if (follow_circle.contains(points.get(points.size() - 1))) {
             follow_point = points.get(points.size() - 1).clone();
+            // If were closing in on the end of the path, set the angle of our follow pose to be the angle between the last two points
+            // This is so if we overshoot we don't try and turn all the way around to get back on path
+            follow_angle = points.get(points.size() - 2).angleTo(points.get(points.size() - 1));
         }
 
-        if (follow_point == null) {
-            follow_point = getRecoveryPoint(recovery_method).clone();
-        }
-
-        return follow_point;
-    }
-
-    public Pose getFollowPose() {
-        Point follow_point = getFollowPoint();
-
-        Pose follow_pose = new Pose(follow_point);
-
-        follow_pose.angle = robot_pose.angleTo(follow_point);
-
-        return follow_pose;
+        return new Pose(follow_point.x, follow_point.y, follow_angle);
     }
 
     /*public boolean isComplete() {
