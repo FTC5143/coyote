@@ -6,7 +6,10 @@ import com.xcentrics.coyote.geometry.Pose;
 import com.xcentrics.coyote.geometry.Segment;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 public class Path {
 
@@ -17,14 +20,25 @@ public class Path {
         FIRST_POINT
     }
 
+    public enum HeadingMethod {
+        TOWARDS_FOLLOW_POINT,
+        AWAY_FROM_FOLLOW_POINT,
+        TOWARDS_PATH_END,
+        AWAY_FROM_PATH_END,
+        CONSTANT_ANGLE
+    }
+
     ArrayList<PathPoint> points = new ArrayList<>();
 
     Pose robot_pose = new Pose();
 
-    double follow_angle = Math.PI / 2;
     double follow_radius = 5;
 
+    double constant_heading = 0;
+
     RecoveryMethod recovery_method = RecoveryMethod.FIRST_UNPASSED_POINT;
+
+    HeadingMethod heading_method = HeadingMethod.TOWARDS_FOLLOW_POINT;
 
     public Path addPoint(PathPoint point) {
         points.add(point);
@@ -36,12 +50,7 @@ public class Path {
     }
 
     public Path reverse() {
-        return followAngle(Math.PI / 2);
-    }
-
-    public Path followAngle(double follow_angle) {
-        this.follow_angle = follow_angle;
-        return this;
+        return headingMethod(HeadingMethod.AWAY_FROM_FOLLOW_POINT);
     }
 
     public Path followRadius(double follow_radius) {
@@ -54,6 +63,17 @@ public class Path {
         return this;
     }
 
+    public Path headingMethod(HeadingMethod heading_method) {
+        this.heading_method = heading_method;
+        return this;
+    }
+
+    public Path constantHeading(double heading) {
+        this.constant_heading = heading;
+
+        return headingMethod(HeadingMethod.CONSTANT_ANGLE);
+    }
+
     public Circle getFollowCircle() {
         return new Circle(robot_pose.to_point(), follow_radius);
     }
@@ -62,23 +82,44 @@ public class Path {
     public void markPassedPoints() {
         Circle follow_circle = getFollowCircle();
 
+        List<Double> flattened_intersections = new ArrayList<Double>();
+
+        double flattened_current_segstart_pos = 0;
+
         for (int i = 0; i < points.size() - 1; i++) {
             Segment seg = new Segment(points.get(i), points.get(i + 1));
 
             List<Point> intersections = follow_circle.segmentIntersections(seg);
 
-            // If we only have one intersection on the line, we might be halfway over one line and halfway over another
-            // Basically in that case we would be on top of a point. We will mark the point as passed once the
-            // intersection on the second line is farther from the start of the segment than the circle radius
-            if (intersections.size() == 1) {
-                if (intersections.get(0).distance(seg.start) >= follow_radius) {
+            for (Point intersection : intersections) {
+                flattened_intersections.add(flattened_current_segstart_pos + intersection.distance(seg.start));
+            }
+
+            flattened_current_segstart_pos += seg.length();
+        }
+
+        Collections.sort(flattened_intersections);
+
+        flattened_current_segstart_pos = 0;
+
+        for (int i = 0; i < points.size() - 1; i++) {
+            Segment seg = new Segment(points.get(i), points.get(i + 1));
+
+            if(flattened_intersections.size() == 2) {
+
+                if((flattened_intersections.get(1) - flattened_current_segstart_pos) >= (flattened_current_segstart_pos - flattened_intersections.get(0))) {
                     points.get(i).markPassed();
                 }
+
+            } else if (flattened_intersections.size() == 1) {
+
+                if(flattened_intersections.get(0) > (flattened_current_segstart_pos + follow_radius)) {
+                    points.get(i).markPassed();
+                }
+
             }
-            // If our follow circle is completely on the next line, mark the start of that line as a passed point
-            //else if (intersections.size() == 2) {
-            //    points.get(i).markPassed();
-            //}
+
+            flattened_current_segstart_pos += seg.length();
         }
     }
 
@@ -101,6 +142,23 @@ public class Path {
 
         return null;
     }
+
+    public double getHeadingGoal(HeadingMethod method, Point follow_point) {
+        switch (method) {
+            case TOWARDS_FOLLOW_POINT: return robot_pose.angleTo(follow_point);
+
+            case AWAY_FROM_FOLLOW_POINT: return robot_pose.angleTo(follow_point) + Math.PI;
+
+            case TOWARDS_PATH_END: return robot_pose.angleTo(points.get(points.size() - 1));
+
+            case AWAY_FROM_PATH_END: return robot_pose.angleTo(points.get(points.size() - 1)) + Math.PI;
+
+            case CONSTANT_ANGLE: return constant_heading;
+        }
+
+        return 0;
+    }
+
 
     public Pose getFollowPose() {
 
@@ -126,16 +184,13 @@ public class Path {
             }
         }
 
-        double follow_angle = robot_pose.angleTo(follow_point);
-
         if (follow_circle.contains(points.get(points.size() - 1))) {
             follow_point = points.get(points.size() - 1).clone();
-            // If were closing in on the end of the path, set the angle of our follow pose to be the angle between the last two points
-            // This is so if we overshoot we don't try and turn all the way around to get back on path
-            follow_angle = points.get(points.size() - 2).angleTo(points.get(points.size() - 1));
         }
 
-        return new Pose(follow_point.x, follow_point.y, follow_angle);
+        double follow_heading = getHeadingGoal(heading_method, follow_point);
+
+        return new Pose(follow_point.x, follow_point.y, follow_heading);
     }
 
     /*public boolean isComplete() {

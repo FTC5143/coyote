@@ -25,7 +25,7 @@ class Robot {
 
         vel.x += acc.x/12;
         vel.y += acc.y/12;
-        vel.angle += acc.angle/10;
+        vel.angle += acc.angle/6;
 
         pose.x += vel.x;
         pose.y += vel.y;
@@ -67,8 +67,8 @@ class Visualizer {
         Graphics2D graphics;
 
 
-        Path path = new Path();
-        path    .addPoint(new PathPoint(200, 200))
+        Path path = new Path()
+                .addPoint(new PathPoint(200, 200))
                 .addPoint(new PathPoint(400, 200))
                 .addPoint(new PathPoint(600, 600))
                 .addPoint(new PathPoint(800, 800)
@@ -78,11 +78,14 @@ class Visualizer {
                 )
                 .addPoint(new PathPoint(1200, 700))
                 .addPoint(new PathPoint(1600, 300))
-                .followRadius(400);
+                .followRadius(500)
+                .headingMethod(Path.HeadingMethod.TOWARDS_FOLLOW_POINT);
 
 
 
-
+        try {
+            TimeUnit.MILLISECONDS.sleep(2000);
+        } catch (Exception e) {}
 
         Robot robot = new Robot();
 
@@ -92,8 +95,6 @@ class Visualizer {
             bufferStrategy = canvas.getBufferStrategy();
             graphics = (Graphics2D) bufferStrategy.getDrawGraphics().create();
             graphics.clearRect(0, 0, width, height);
-
-            //graphics.drawString("This is some text placed in the top left corner.", 5, 15);
 
             robot.update();
             path.update(robot.pose);
@@ -143,6 +144,7 @@ class Visualizer {
             Rectangle robot_rect = new Rectangle((int)robot.pose.x - 90, (int)robot.pose.y - 90, 180, 180);
             graphics.rotate(robot.pose.angle, (int) robot.pose.x, (int) robot.pose.y);
             graphics.draw(robot_rect);
+            graphics.drawLine((int) robot.pose.x,(int) robot.pose.y, (int) robot.pose.x + 100,(int) robot.pose.y);
 
             bufferStrategy.show();
             graphics.dispose();
