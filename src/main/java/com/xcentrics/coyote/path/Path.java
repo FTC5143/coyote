@@ -36,6 +36,10 @@ public class Path {
 
     double constant_heading = 0;
 
+    double position_precision = 5;
+
+    double heading_precision = 0.016;
+
     RecoveryMethod recovery_method = RecoveryMethod.FIRST_UNPASSED_POINT;
 
     HeadingMethod heading_method = HeadingMethod.TOWARDS_FOLLOW_POINT;
@@ -72,6 +76,16 @@ public class Path {
         this.constant_heading = heading;
 
         return headingMethod(HeadingMethod.CONSTANT_ANGLE);
+    }
+
+    public Path positionPrecision(double precision) {
+        this.position_precision = precision;
+        return this;
+    }
+
+    public Path headingPrecision(double precision) {
+        this.heading_precision = precision;
+        return this;
     }
 
     public Circle getFollowCircle() {
@@ -121,6 +135,10 @@ public class Path {
 
             flattened_current_segstart_pos += seg.length();
         }
+
+        if(robot_pose.distance(getLastPoint()) < position_precision) {
+            getLastPoint().markPassed();
+        }
     }
 
     public void update(Pose new_robot_pose) {
@@ -133,9 +151,15 @@ public class Path {
         switch (method) {
             case FIRST_POINT: return points.get(0);
 
-            case LAST_POINT: return points.get(points.size() - 1);
+            case LAST_POINT: return getLastPoint();
 
-            case FIRST_UNPASSED_POINT: return getFirstUnpassedPoint();
+            case FIRST_UNPASSED_POINT: {
+                PathPoint first_unpassed_point = getFirstUnpassedPoint();
+                if(first_unpassed_point == null) {
+                    return getLastPoint();
+                }
+                return first_unpassed_point;
+            }
 
             case LAST_PASSED_POINT: return getLastPassedPoint();
         }
@@ -144,14 +168,45 @@ public class Path {
     }
 
     public double getHeadingGoal(HeadingMethod method, Point follow_point) {
+
+        boolean approaching_end = getFollowCircle().contains(getLastPoint());
+
         switch (method) {
-            case TOWARDS_FOLLOW_POINT: return robot_pose.angleTo(follow_point);
+            case TOWARDS_FOLLOW_POINT: {
+                if (approaching_end) {
+                    return getSecondLastPoint().angleTo(getLastPoint());
+                }
+                else {
+                    return robot_pose.angleTo(follow_point);
+                }
+            }
 
-            case AWAY_FROM_FOLLOW_POINT: return robot_pose.angleTo(follow_point) + Math.PI;
+            case AWAY_FROM_FOLLOW_POINT: {
+                if (approaching_end) {
+                    return getLastPoint().angleTo(getSecondLastPoint());
+                }
+                else {
+                    return robot_pose.angleTo(follow_point) + Math.PI;
+                }
+            }
 
-            case TOWARDS_PATH_END: return robot_pose.angleTo(points.get(points.size() - 1));
+            case TOWARDS_PATH_END: {
+                if (approaching_end) {
+                    return getSecondLastPoint().angleTo(getLastPoint());
+                }
+                else {
+                    return robot_pose.angleTo(getLastPoint());
+                }
+            }
 
-            case AWAY_FROM_PATH_END: return robot_pose.angleTo(points.get(points.size() - 1)) + Math.PI;
+            case AWAY_FROM_PATH_END: {
+                if (approaching_end) {
+                    return getLastPoint().angleTo(getSecondLastPoint());
+                }
+                else {
+                    return robot_pose.angleTo(getLastPoint()) + Math.PI;
+                }
+            }
 
             case CONSTANT_ANGLE: return constant_heading;
         }
@@ -184,8 +239,8 @@ public class Path {
             }
         }
 
-        if (follow_circle.contains(points.get(points.size() - 1))) {
-            follow_point = points.get(points.size() - 1).clone();
+        if (follow_circle.contains(getLastPoint())) {
+            follow_point = getLastPoint().clone();
         }
 
         double follow_heading = getHeadingGoal(heading_method, follow_point);
@@ -193,9 +248,11 @@ public class Path {
         return new Pose(follow_point.x, follow_point.y, follow_heading);
     }
 
-    /*public boolean isComplete() {
-
-    }*/
+    public boolean isComplete() {
+        return
+                robot_pose.distance(getLastPoint()) < position_precision &&
+                Math.abs(robot_pose.angle - getHeadingGoal(heading_method, getFollowPose())) < heading_precision;
+    }
 
     public PathPoint getFirstUnpassedPoint() {
         for (PathPoint point : points) {
@@ -213,5 +270,13 @@ public class Path {
             }
         }
         return null;
+    }
+
+    public PathPoint getLastPoint() {
+        return points.get(points.size() - 1);
+    }
+
+    public PathPoint getSecondLastPoint() {
+        return points.get(points.size() - 2);
     }
 }

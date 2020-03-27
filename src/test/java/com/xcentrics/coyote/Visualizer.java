@@ -18,13 +18,18 @@ class Robot {
     Pose vel = new Pose();
     Pose acc = new Pose();
 
-    final double DAMP = 0.98;
+    final double DAMP = 0.95;
     final double DAMP_ANGLE = 0.9;
 
-    public void update() {
+    public void update(Path path) {
 
-        vel.x += acc.x/12;
-        vel.y += acc.y/12;
+        double d = Math.min(1, pose.distance(path.getLastPoint()) / 150);
+
+        acc.x *= d;
+        acc.y *= d;
+
+        vel.x += acc.x/6;
+        vel.y += acc.y/6;
         vel.angle += acc.angle/6;
 
         pose.x += vel.x;
@@ -78,14 +83,15 @@ class Visualizer {
                 )
                 .addPoint(new PathPoint(1200, 700))
                 .addPoint(new PathPoint(1600, 300))
-                .followRadius(500)
+                .followRadius(250)
                 .headingMethod(Path.HeadingMethod.TOWARDS_FOLLOW_POINT);
 
 
-
+        /*
         try {
             TimeUnit.MILLISECONDS.sleep(2000);
         } catch (Exception e) {}
+        */
 
         Robot robot = new Robot();
 
@@ -96,7 +102,7 @@ class Visualizer {
             graphics = (Graphics2D) bufferStrategy.getDrawGraphics().create();
             graphics.clearRect(0, 0, width, height);
 
-            robot.update();
+            robot.update(path);
             path.update(robot.pose);
 
             Pose follow_pose = path.getFollowPose();
