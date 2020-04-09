@@ -260,7 +260,7 @@ public class Path {
                 return point;
             }
         }
-        return null;
+        return getLastPoint();
     }
 
     public PathPoint getLastPassedPoint() {
@@ -269,7 +269,7 @@ public class Path {
                 return points.get(i);
             }
         }
-        return null;
+        return points.get(0);
     }
 
     public PathPoint getLastPoint() {

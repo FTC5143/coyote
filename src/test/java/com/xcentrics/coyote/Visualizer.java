@@ -18,12 +18,12 @@ class Robot {
     Pose vel = new Pose();
     Pose acc = new Pose();
 
-    final double DAMP = 0.95;
-    final double DAMP_ANGLE = 0.9;
+    final double DAMP = 0.96;
+    final double DAMP_ANGLE = 0.90;
 
     public void update(Path path) {
 
-        double d = Math.min(1, pose.distance(path.getLastPoint()) / 150);
+        double d = Math.min(1, Math.pow(pose.distance(path.getLastPoint()) / 160, 2));
 
         acc.x *= d;
         acc.y *= d;
@@ -72,19 +72,16 @@ class Visualizer {
         Graphics2D graphics;
 
 
-        Path path = new Path()
+        Path path = new Path();
+        path
                 .addPoint(new PathPoint(200, 200))
                 .addPoint(new PathPoint(400, 200))
                 .addPoint(new PathPoint(600, 600))
-                .addPoint(new PathPoint(800, 800)
-                        .addAction(() -> {
-                            System.out.println("halfway der hurr durr");
-                        })
-                )
+                .addPoint(new PathPoint(800, 800))
                 .addPoint(new PathPoint(1200, 700))
                 .addPoint(new PathPoint(1600, 300))
-                .followRadius(250)
-                .headingMethod(Path.HeadingMethod.TOWARDS_FOLLOW_POINT);
+                .followRadius(200)
+                .constantHeading(Math.PI/2);
 
 
         /*
@@ -130,6 +127,7 @@ class Visualizer {
                 }
             }
 
+
             graphics.setColor(Color.PINK);
             for (Point point : actual_path_points) {
                 graphics.drawLine((int)point.x, (int)point.y, (int)point.x, (int)point.y);
@@ -157,6 +155,7 @@ class Visualizer {
 
             robot.acc.x = Math.cos(robot.pose.angleTo(follow_pose));
             robot.acc.y = Math.sin(robot.pose.angleTo(follow_pose));
+
             robot.acc.angle = Math.max(Math.min((follow_pose.angle-robot.pose.angle), 0.01), -0.01);
 
             actual_path_points.add(robot.pose.to_point());
