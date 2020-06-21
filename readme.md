@@ -16,11 +16,11 @@ This library is an implementation of a [pure pursuit](https://www.ri.cmu.edu/pub
 
 These are features already planned to be implemented
 
-- [ ] Working, integratable, and adaptable pure pursuit algorithm
+- [x] Working, integratable, and adaptable pure pursuit algorithm
 - [ ] Comprehensive and easy-to-understand documentation
 - [ ] Implementation examples, and sample code
-- [ ] Markers, (commands that run when points are passed)
-- [ ] Easy linked and heavily customizable path building syntax
+- [x] Markers, (commands that run when points are passed)
+- [x] Easy linked and heavily customizable path building syntax
 - [ ] Adaptable settings for curve points and segments
 - [x] Continuous integration
 - [ ] Unit tests in the CI
