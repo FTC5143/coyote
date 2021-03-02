@@ -21,19 +21,9 @@ These are features already planned to be implemented
 - [ ] Implementation examples, and sample code
 - [x] Markers, (commands that run when points are passed)
 - [x] Easy linked and heavily customizable path building syntax
-- [ ] Adaptable settings for curve points and segments
+- [x] Adaptable settings for curve points and segments
 - [x] Continuous integration
 - [ ] Unit tests in the CI
-
-## Possible Features
-
-These are features that could possibly be implemented but are not planned on
-
-- [ ] Motion profiling
-- [ ] Easy path planning GUI
-- [ ] Odometry localization math
-- [ ] Visual integration with dashboards such as [FTC Dashboard](https://github.com/acmerobotics/ftc-dashboard)
-- [ ] An actual dev team (ha)
 
 ## Contributing
 
